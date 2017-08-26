@@ -3,10 +3,11 @@ package impl;
 import fastq.BaseComparator;
 import fastq.BasePartitioner;
 import fastq.FastqInputFormat;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -15,18 +16,24 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-public class FastqCountBaseDriver extends Configured implements Tool {
+public class FastqCountSubsequences extends Configured implements Tool {
 
-	private static Logger logger = Logger.getLogger(FastqCountBaseDriver.class);
+	private static Logger logger = Logger.getLogger(FastqCountSubsequences.class);
 
 	public int run(String [] args) throws Exception {
 
-		logger.info("run(): input  args[0]="+args[0]);
-		logger.info("run(): output args[1]="+args[1]);
+		logger.info("run(): input  args[0]=" + args[0]);
+		logger.info("run(): output args[1]=" + args[1]);
 
-		Job job = Job.getInstance(getConf(), "Fastq count");
-		job.setJarByClass(FastqCountBaseDriver.class);
-		job.setJobName("FastqCountBaseDriver");
+		Configuration conf = new Configuration();
+		if(args.length == 3) {
+			conf.set("length", args[2]);
+			logger.info("run(): length args[2]=" + args[2]);
+		}
+
+		Job job = Job.getInstance(conf, "Fastq count");
+		job.setJarByClass(FastqCountSubsequences.class);
+		job.setJobName("FastqCountSubsequences");
 		
 		job.setInputFormatClass(FastqInputFormat.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
@@ -35,11 +42,11 @@ public class FastqCountBaseDriver extends Configured implements Tool {
 		job.setSortComparatorClass(BaseComparator.class);
 
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(LongWritable.class);		
+		job.setOutputValueClass(IntWritable.class);
 		
-		job.setMapperClass(FastqCountBaseMapper.class);
-		job.setCombinerClass(FastqCountBaseReducer.class);
-		job.setReducerClass(FastqCountBaseReducer.class);
+		job.setMapperClass(FastqMapper.class);
+		job.setCombinerClass(FastqReducer.class);
+		job.setReducerClass(FastqReducer.class);
 
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 
@@ -54,18 +61,12 @@ public class FastqCountBaseDriver extends Configured implements Tool {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
-			logger.info("GRESKA: Pogresan broj ulaznih parametara: <input-dir> <output-dir>");
-			throw new IllegalArgumentException("GRESKA: Pogresan broj ulaznih parametara: <input-dir> <output-dir>");
+		if (args.length < 2) {
+			logger.info("GRESKA: Pogresan broj ulaznih parametara: <input-dir> <output-dir> <length>");
+			throw new IllegalArgumentException("GRESKA: Pogresan broj ulaznih parametara: <input-dir> <output-dir> <length>");
 		}
 
-		String inputDir = args[0];
-		logger.info("inputDir="+inputDir);
-
-		String outputDir = args[1];
-		logger.info("outputDir="+outputDir);
-
-		int ret = ToolRunner.run(new FastqCountBaseDriver(), args);
+		int ret = ToolRunner.run(new FastqCountSubsequences(), args);
 		System.exit(ret);
 	}
 }
