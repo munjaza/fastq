@@ -7,6 +7,6 @@ public class SequencePartitioner extends Partitioner<SequencePair, NullWritable>
 
     @Override
     public int getPartition(SequencePair sequencePair, NullWritable nullWritable, int numPartitions) {
-        return Math.abs(sequencePair.getSubsequence().hashCode()) % numPartitions;
+        return (sequencePair.getSubsequence().hashCode() & Integer.MAX_VALUE) % numPartitions;
     }
 }

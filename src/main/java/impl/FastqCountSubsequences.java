@@ -1,7 +1,6 @@
 package impl;
 
 import fastq.BaseComparator;
-import fastq.BasePartitioner;
 import fastq.FastqInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -43,7 +42,6 @@ public class FastqCountSubsequences extends Configured implements Tool {
 		job.setJarByClass(FastqCountSubsequences.class);
 		job.setInputFormatClass(FastqInputFormat.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
-		job.setPartitionerClass(BasePartitioner.class);
 		job.setSortComparatorClass(BaseComparator.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
@@ -71,6 +69,7 @@ public class FastqCountSubsequences extends Configured implements Tool {
 			job1.setSortComparatorClass(SequenceComparator.class);
 			job1.setGroupingComparatorClass(GroupComparator.class);
 			job1.setReducerClass(SortingReducer.class);
+			job1.setNumReduceTasks(1);
 			job1.setOutputFormatClass(TextOutputFormat.class);
 
 			FileInputFormat.setInputPaths(job1, new Path(TMP_PATH));

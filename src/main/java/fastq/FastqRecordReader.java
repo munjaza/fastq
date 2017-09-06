@@ -67,7 +67,7 @@ public class FastqRecordReader extends RecordReader<LongWritable, Text> {
       }
 
       final String s = this.lrr.getCurrentValue().toString().trim();
-	  System.out.println("nextKeyValue() s="+s);
+	  //System.out.println("nextKeyValue() s="+s);
 	  
       // Prevent empty lines
       if (s.length() == 0) {
