@@ -32,7 +32,7 @@ public class FastqCountSubsequences extends Configured implements Tool {
 		logger.info("run(): tmp args[1]=" + TMP_PATH);
 		logger.info("run(): output args[2]=" + OUTPUT_PATH);
 
-		Configuration conf = new Configuration();
+		Configuration conf = this.getConf();
 		if(args.length == 4) {
 			conf.set("length", args[3]);
 			logger.info("run(): length args[3]=" + args[3]);
@@ -92,7 +92,7 @@ public class FastqCountSubsequences extends Configured implements Tool {
 			throw new IllegalArgumentException("GRESKA: Pogresan broj ulaznih parametara: <input-dir> <tmp-dir> <output-dir> <length>");
 		}
 
-		int ret = ToolRunner.run(new FastqCountSubsequences(), args);
+		int ret = ToolRunner.run(new Configuration(), new FastqCountSubsequences(), args);
 		System.exit(ret);
 	}
 }
